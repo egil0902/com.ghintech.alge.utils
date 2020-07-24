@@ -46,6 +46,7 @@ public class OrderBatchProcess extends SvrProcess
 	private String 		p_DocAction = null;
 	private String 		p_IsDelivered = null;
 	private String 		p_IsInvoiced = null;
+	private int 		p_C_Invoice_ID = 0;
 
 	/**
 	 * 	Prepare
@@ -78,6 +79,9 @@ public class OrderBatchProcess extends SvrProcess
 			} else if (name.equals("IsInvoiced")) {
 				p_IsInvoiced = (String)para[i].getParameter();
 			}
+			else if (name.equals("C_Invoice_ID")) {
+				p_C_Invoice_ID = para[i].getParameter_ToAsInt();
+			}
 			else
 				log.log(Level.SEVERE, "Unknown Parameter: " + name);
 		}
@@ -94,7 +98,7 @@ public class OrderBatchProcess extends SvrProcess
 			+ ", IsSelfService=" + p_IsSelfService + ", C_BPartner_ID=" + p_C_BPartner_ID
 			+ ", DateOrdered=" + p_DateOrdered_From + "->" + p_DateOrdered_To
 			+ ", DocAction=" + p_DocAction + ", IsDelivered=" + p_IsDelivered
-			+ ", IsInvoiced=" + p_IsInvoiced);
+			+ ", IsInvoiced=" + p_IsInvoiced + ", C_Invoice_ID=" + p_C_Invoice_ID);
 		
 		if (p_C_DocTypeTarget_ID == 0)
 			throw new AdempiereUserError("@NotFound@: @C_DocTypeTarget_ID@");
@@ -126,6 +130,9 @@ public class OrderBatchProcess extends SvrProcess
 		else if ("N".equals(p_IsInvoiced))
 			sql.append(" AND EXISTS (SELECT l.C_OrderLine_ID FROM C_OrderLine l ")
 			.append(" WHERE l.C_Order_ID=o.C_Order_ID AND l.QtyOrdered>l.QtyInvoiced) ");
+		if (p_C_Invoice_ID != 0)
+			sql.append(" (SELECT l.C_OrderLine_ID FROM C_OrderLine l inner join C_InvoiceLine il on l.C_OrderLine_ID=il.C_OrderLine_ID")
+			.append(" WHERE il.C_Invoice_ID =)").append(p_C_Invoice_ID);
 		
 		int counter = 0;
 		int errCounter = 0;
