@@ -80,7 +80,7 @@ public class OrderBatchProcess extends SvrProcess
 				p_IsInvoiced = (String)para[i].getParameter();
 			}
 			else if (name.equals("C_Invoice_ID")) {
-				p_C_Invoice_ID = para[i].getParameter_ToAsInt();
+				p_C_Invoice_ID = para[i].getParameterAsInt();
 			}
 			else
 				log.log(Level.SEVERE, "Unknown Parameter: " + name);
@@ -131,8 +131,8 @@ public class OrderBatchProcess extends SvrProcess
 			sql.append(" AND EXISTS (SELECT l.C_OrderLine_ID FROM C_OrderLine l ")
 			.append(" WHERE l.C_Order_ID=o.C_Order_ID AND l.QtyOrdered>l.QtyInvoiced) ");
 		if (p_C_Invoice_ID != 0)
-			sql.append(" (SELECT l.C_OrderLine_ID FROM C_OrderLine l inner join C_InvoiceLine il on l.C_OrderLine_ID=il.C_OrderLine_ID")
-			.append(" WHERE il.C_Invoice_ID =)").append(p_C_Invoice_ID);
+			sql.append(" AND o.C_Order_ID IN (SELECT l.C_Order_ID FROM C_OrderLine l inner join C_InvoiceLine il on l.C_OrderLine_ID=il.C_OrderLine_ID")
+			.append(" WHERE il.C_Invoice_ID =").append(p_C_Invoice_ID).append(")");
 		
 		int counter = 0;
 		int errCounter = 0;
